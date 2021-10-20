@@ -5,15 +5,15 @@
     </header>
     <main>
       <div class="layout">
-        <h3>笔记本列表({{notebooks.length}})</h3>
+        <h3>笔记本列表({{ notebooks.length }})</h3>
         <div class="book-list">
           <router-link v-for="notebook in notebooks" to="/note/1" class="notebook">
             <div>
-              <span class="iconfont icon-notebook"></span> {{notebook.title}}
-              <span>{{notebook.noteCounts}}</span>
+              <span class="iconfont icon-notebook"></span> {{ notebook.title }}
+              <span>{{ notebook.noteCounts }}</span>
               <span class="action" @click.stop.prevent="onEdit(notebook)">编辑</span>
               <span class="action" @click.stop.prevent="onDelete(notebook)">删除</span>
-              <span class="date">{{notebook.friendlyCreatedAt}}</span>
+              <span class="date">{{ notebook.friendlyCreatedAt }}</span>
             </div>
           </router-link>
         </div>
@@ -26,10 +26,10 @@
 <script>
 import Auth from '../apis/auth'
 import Notebooks from '../apis/notebooks'
-import { friendlyData } from '../helpers/util'
+import {friendlyData} from '../helpers/util'
 
 export default {
-  data () {
+  data() {
     return {
       notebooks: []
     }
@@ -38,7 +38,7 @@ export default {
   created() {
     Auth.getInfo()
       .then(res => {
-        if(!res.isLogin) {
+        if (!res.isLogin) {
           this.$router.push({path: '/login'})
         }
       })
@@ -51,37 +51,48 @@ export default {
 
   methods: {
     onCreate() {
-      let title = window.prompt('创建笔记本')
-      if(title.trim() === '') {
-        alert('笔记本名不能为空')
-        return
-      }
-      Notebooks.addNotebook({ title })
-        .then(res => {
-          res.data.friendlyCreatedAt = friendlyData(res.data.createdAt)
-          this.notebooks.unshift(res.data)
-          alert(res.msg)
-        })
+      this.$prompt('请输入笔记本名称', '创建笔记本', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^.{1,30}$/,
+        inputErrorMessage: '笔记本名称不可为空，且不超过30个字符'
+      }).then(({value}) => {
+        return Notebooks.addNotebook({title: value})
+      }).then(res => {
+        res.data.friendlyCreatedAt = friendlyData(res.data.createdAt)
+        this.notebooks.unshift(res.data)
+        this.$message.success(res.msg)
+      })
     },
 
     onEdit(notebook) {
-      let title = window.prompt('修改标题', notebook.title)
-      Notebooks.updateNotebook(notebook.id, { title })
-        .then(res => {
-          notebook.title = title
-          alert(res.msg)
-        })
+      let title = ''
+      this.$prompt('请输入新笔记本名称', '修改笔记本', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /^.{1,30}$/,
+        inputValue:notebook.title,
+        inputErrorMessage: '笔记本名称不可为空，且不超过30个字符'
+      }).then(({value}) => {
+        title = value
+        return Notebooks.updateNotebook(notebook.id, {title})
+      }).then(res => {
+        notebook.title = title
+        this.$message.success(res.msg)
+      })
     },
 
     onDelete(notebook) {
-      let isConfirm = window.confirm('你确定要删除吗?')
-      if(isConfirm) {
-        Notebooks.deleteNotebook(notebook.id)
-          .then(res => {
-            this.notebooks.splice(this.notebooks.indexOf(notebook), 1)
-            alert(res.msg)
-          })
-      }
+      this.$confirm('此操作将删除该笔记, 是否继续?', '删除笔记本', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        return Notebooks.deleteNotebook(notebook.id)
+      }).then(res => {
+        this.notebooks.splice(this.notebooks.indexOf(notebook), 1)
+        this.$message.success(res.msg)
+      })
     }
   }
 }
