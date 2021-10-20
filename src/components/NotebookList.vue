@@ -26,7 +26,7 @@
 <script>
 import Auth from '../apis/auth'
 import Notebooks from '../apis/notebooks'
-// import { friendlyDate } from '../helpers/util'
+import { friendlyData } from '../helpers/util'
 
 export default {
   data () {
@@ -58,31 +58,26 @@ export default {
       }
       Notebooks.addNotebook({ title })
         .then(res => {
-          console.log(res)
-          res.data.friendlyCreatedAt = friendlyDate(res.data.createdAt)
+          res.data.friendlyCreatedAt = friendlyData(res.data.createdAt)
           this.notebooks.unshift(res.data)
           alert(res.msg)
         })
     },
 
     onEdit(notebook) {
-      console.log('edit...', notebook)
       let title = window.prompt('修改标题', notebook.title)
       Notebooks.updateNotebook(notebook.id, { title })
         .then(res => {
-          console.log(res)
           notebook.title = title
           alert(res.msg)
         })
     },
 
     onDelete(notebook) {
-      console.log('delete', notebook)
       let isConfirm = window.confirm('你确定要删除吗?')
       if(isConfirm) {
         Notebooks.deleteNotebook(notebook.id)
           .then(res => {
-            console.log(res)
             this.notebooks.splice(this.notebooks.indexOf(notebook), 1)
             alert(res.msg)
           })
