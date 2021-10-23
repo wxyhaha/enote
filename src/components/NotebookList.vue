@@ -7,7 +7,7 @@
       <div class="layout">
         <h3>笔记本列表({{ notebooks.length }})</h3>
         <div class="book-list">
-          <router-link v-for="notebook in notebooks" to="/note/1" class="notebook">
+          <router-link v-for="notebook in notebooks" :to="`/note?notebookId=${notebook.id}`" class="notebook">
             <div>
               <span class="iconfont icon-notebook"></span> {{ notebook.title }}
               <span>{{ notebook.noteCounts }}</span>
@@ -18,7 +18,6 @@
           </router-link>
         </div>
       </div>
-
     </main>
 
   </div>
@@ -71,7 +70,7 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         inputPattern: /^.{1,30}$/,
-        inputValue:notebook.title,
+        inputValue: notebook.title,
         inputErrorMessage: '笔记本名称不可为空，且不超过30个字符'
       }).then(({value}) => {
         title = value
