@@ -67,20 +67,15 @@ export default {
     addNote() {
       Notes.addNote({notebookId: this.curBook.id})
         .then(res => {
-          console.log(res)
           this.notes.unshift(res.data)
         })
     }
-
   }
 }
-
 </script>
-
 
 <style lang="less" scoped>
 @import url(../assets/css/note-sidebar.less);
-
 </style>
 
 
