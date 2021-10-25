@@ -31,7 +31,11 @@ export default {
 </script>
 
 <style scoped>
-h1 {
-  color: blue;
+@import url(../assets/css/note-detail.less);
+#note {
+  display: flex;
+  align-items: stretch;
+  background-color: #fff;
+  flex: 1;
 }
 </style>
