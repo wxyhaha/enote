@@ -26,12 +26,11 @@
 import Auth from '../apis/auth'
 import Notebooks from '../apis/notebooks'
 import {friendlyData} from '../helpers/util'
+import {mapState, mapGetters, mapActions} from 'vuex'
 
 export default {
   data() {
-    return {
-      notebooks: []
-    }
+    return {}
   },
 
   created() {
@@ -41,14 +40,19 @@ export default {
           this.$router.push({path: '/login'})
         }
       })
-
-    Notebooks.getAll()
-      .then(res => {
-        this.notebooks = res.data
-      })
+    this.$store.dispatch('getNotebooks')
+  },
+  computed: {
+    ...mapGetters(['notebooks'])
   },
 
   methods: {
+    ...mapActions([
+      'getNotebooks',
+      'addNotebook',
+      'updateNotebook',
+      'deleteNotebook'
+    ]),
     onCreate() {
       this.$prompt('请输入笔记本名称', '创建笔记本', {
         confirmButtonText: '确定',
@@ -56,16 +60,11 @@ export default {
         inputPattern: /^.{1,30}$/,
         inputErrorMessage: '笔记本名称不可为空，且不超过30个字符'
       }).then(({value}) => {
-        return Notebooks.addNotebook({title: value})
-      }).then(res => {
-        res.data.friendlyCreatedAt = friendlyData(res.data.createdAt)
-        this.notebooks.unshift(res.data)
-        this.$message.success(res.msg)
+        this.addNotebook({title:value})
       })
     },
 
     onEdit(notebook) {
-      let title = ''
       this.$prompt('请输入新笔记本名称', '修改笔记本', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -73,11 +72,7 @@ export default {
         inputValue: notebook.title,
         inputErrorMessage: '笔记本名称不可为空，且不超过30个字符'
       }).then(({value}) => {
-        title = value
-        return Notebooks.updateNotebook(notebook.id, {title})
-      }).then(res => {
-        notebook.title = title
-        this.$message.success(res.msg)
+        this.updateNotebook({notebookId:notebook.id, title:value})
       })
     },
 
@@ -87,10 +82,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        return Notebooks.deleteNotebook(notebook.id)
-      }).then(res => {
-        this.notebooks.splice(this.notebooks.indexOf(notebook), 1)
-        this.$message.success(res.msg)
+        this.deleteNotebook({notebookId:notebook.id})
       })
     }
   }
