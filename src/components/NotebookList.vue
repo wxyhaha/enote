@@ -24,8 +24,6 @@
 </template>
 <script>
 import Auth from '../apis/auth'
-import Notebooks from '../apis/notebooks'
-import {friendlyData} from '../helpers/util'
 import {mapState, mapGetters, mapActions} from 'vuex'
 
 export default {
