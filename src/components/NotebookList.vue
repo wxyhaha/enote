@@ -19,12 +19,10 @@
         </div>
       </div>
     </main>
-
   </div>
 </template>
 <script>
-import Auth from '../apis/auth'
-import {mapState, mapGetters, mapActions} from 'vuex'
+import {mapGetters, mapActions} from 'vuex'
 
 export default {
   data() {
@@ -32,16 +30,13 @@ export default {
   },
 
   created() {
-    Auth.getInfo()
-      .then(res => {
-        if (!res.isLogin) {
-          this.$router.push({path: '/login'})
-        }
-      })
-    this.$store.dispatch('getNotebooks')
+    this.checkLogin({path: '/login'})
+    this.getNotebooks()
   },
   computed: {
-    ...mapGetters(['notebooks'])
+    ...mapGetters([
+      'notebooks'
+    ])
   },
 
   methods: {
@@ -49,7 +44,8 @@ export default {
       'getNotebooks',
       'addNotebook',
       'updateNotebook',
-      'deleteNotebook'
+      'deleteNotebook',
+      'checkLogin'
     ]),
     onCreate() {
       this.$prompt('请输入笔记本名称', '创建笔记本', {

@@ -1,4 +1,5 @@
 import Auth from '../../apis/auth'
+import router from '../../router'
 
 const state = {
   user: null
@@ -27,7 +28,16 @@ const actions = {
         commit('setUser', {user: res.data})
       })
   },
-
+  checkLogin({commit},payload){
+    return Auth.getInfo()
+      .then(res=>{
+        if(!res.isLogin){
+          router.push(payload)
+        }else{
+          commit('setUser',{user:res.data})
+        }
+      })
+  }
 }
 
 export default {
