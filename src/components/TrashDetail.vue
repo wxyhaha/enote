@@ -38,60 +38,53 @@
 </template>
 
 <script>
-import Auth from '../apis/auth'
 import MarkdownIt from 'markdown-it'
-
 let md = new MarkdownIt();
+import {mapGetters,mapActions,mapMutations} from 'vuex'
 
 export default {
   data() {
-    return {
-      msg: '回收站',
-      curTrashNote: {
-        id: 1,
-        title: '我的笔记',
-        content: '## hello',
-        createdAtFriendly: '2 day ago',
-        updatedAtFriendly: '3just moment'
-      },
-      belongTo: '我的笔记本',
-      trashNotes: [
-        {
-          id: 3,
-          title: '我的笔记',
-          content: '## hello',
-          createdAtFriendly: '4 day ago',
-          updatedAtFriendly: '5just moment'
-        },
-        {
-          id: 4,
-          title: '我的笔记',
-          content: '## hello',
-          createdAtFriendly: '1 day ago',
-          updatedAtFriendly: 'just moment'
-        }
-      ]
-    }
+    return {}
   },
   created() {
-    Auth.getInfo().then(res => {
-      if (!res.isLogin) {
-        this.$router.push({path: '/login'})
-      }
+    this.checkLogin({path:'/login'})
+    this.getNotebooks()
+    this.getTrashNotes()
+    .then(()=>{
+      this.setCurTrashNote({curTrashNoteId:this.$route.query.noteId})
     })
   },
   methods: {
+    ...mapMutations([
+      'setCurTrashNote'
+    ]),
+    ...mapActions([
+      'checkLogin',
+      'getTrashNotes',
+      'deleteTrashNote',
+      'revertTrashNote',
+      'getNotebooks'
+    ]),
     onRevert() {
-      console.log('恢复')
+      this.revertTrashNote({noteId:this.curTrashNote.id})
     },
     onDelete() {
-      console.log('delete')
+      this.deleteTrashNote({noteId:this.curTrashNote.id})
     }
   },
   computed: {
+    ...mapGetters([
+      'trashNotes',
+      'curTrashNote',
+      'belongTo'
+    ]),
     compiledMarkdown() {
       return md.render(this.curTrashNote.content || '')
     }
+  },
+  beforeRouteUpdate(to, from, next) {
+    this.setCurTrashNote({curTrashNoteId:to.query.noteId})
+    next()
   }
 }
 </script>

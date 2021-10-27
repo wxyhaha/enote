@@ -27,7 +27,7 @@ const mutations = {
     note.title = payload.title
     note.content=payload.content
   },
-  deleteNotebook(state, payload) {
+  deleteNote(state, payload) {
     state.notes = state.notes.filter(note => note.id !== payload.noteId)
   },
   setCurNote(state,payload){
